@@ -1,9 +1,11 @@
+//Raytracing_Rust_Project/src/framebuffer.rs
+
 pub struct Framebuffer {
     pub width: usize,
     pub height: usize,
     pub buffer: Vec<u32>,
-    pub background_color: u32,
-    pub current_color: u32,
+    background_color: u32,
+    current_color: u32,
 }
 
 impl Framebuffer {
