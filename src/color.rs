@@ -1,75 +1,129 @@
-//Raytracing_Rust_Project/src/color.rs
 use std::fmt;
+use std::ops::{Add, Mul};
 
-#[derive(Debug, Clone, Copy)]
+// Definimos la estructura Color
+#[derive(Debug, Copy, Clone)]
 pub struct Color {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
+    pub red: u8,
+    pub green: u8,
+    pub blue: u8,
 }
 
+// Implementamos métodos para la estructura Color
 impl Color {
-    // Constructor to initialize the color using r, g, b values
-    pub const fn new(r: u8, g: u8, b: u8) -> Self {
-        Color { r, g, b }
+    // Método para crear una nueva instancia de Color con clamping
+    pub fn new(red: i32, green: i32, blue: i32) -> Color {
+        Color {
+            red: red.clamp(0, 255) as u8,
+            green: green.clamp(0, 255) as u8,
+            blue: blue.clamp(0, 255) as u8,
+        }
     }
 
-    // Function to create a color from a hex value
-    pub const fn from_hex(hex: u32) -> Self {
-        let r = ((hex >> 16) & 0xFF) as u8;
-        let g = ((hex >> 8) & 0xFF) as u8;
-        let b = (hex & 0xFF) as u8;
-        Color { r, g, b }
+    pub fn black() -> Color {
+        Color {
+            red: 0 as u8,
+            green: 0 as u8,
+            blue: 0 as u8,
+        }
     }
 
-    pub const fn black() -> Self {
-        Color { r: 0, g: 0, b: 0 }
+    // Método para crear una instancia de Color a partir de un valor hexadecimal
+    pub fn from_hex(hex: u32) -> Color {
+        Color {
+            red: ((hex >> 16) & 0xFF) as u8,
+            green: ((hex >> 8) & 0xFF) as u8,
+            blue: (hex & 0xFF) as u8,
+        }
     }
 
-    // Function to return the color as a hex value
+    // Método para convertir Color a hexadecimal
     pub fn to_hex(&self) -> u32 {
-        ((self.r as u32) << 16) | ((self.g as u32) << 8) | (self.b as u32)
-    }
-
-    // Function to return the color as a hex value
-    pub fn is_black(&self) -> bool {
-        self.r == 0 && self.g == 0 && self.b == 0
+        ((self.red as u32) << 16) | ((self.green as u32) << 8) | (self.blue as u32)
     }
 }
 
-// Implement addition for Color
-use std::ops::Add;
-
+// Implementamos el trait Add para permitir la suma de colores
 impl Add for Color {
     type Output = Color;
 
     fn add(self, other: Color) -> Color {
         Color {
-            r: self.r.saturating_add(other.r),
-            g: self.g.saturating_add(other.g),
-            b: self.b.saturating_add(other.b),
+            red: self.red.saturating_add(other.red),
+            green: self.green.saturating_add(other.green),
+            blue: self.blue.saturating_add(other.blue),
         }
     }
 }
 
-// Implement multiplication by a constant for Color
-use std::ops::Mul;
-
+// Implementamos el trait Mul para permitir la multiplicación de colores por una constante
 impl Mul<f32> for Color {
     type Output = Color;
 
     fn mul(self, scalar: f32) -> Color {
         Color {
-            r: (self.r as f32 * scalar).clamp(0.0, 255.0) as u8,
-            g: (self.g as f32 * scalar).clamp(0.0, 255.0) as u8,
-            b: (self.b as f32 * scalar).clamp(0.0, 255.0) as u8,
+            red: (self.red as f32 * scalar).clamp(0.0, 255.0) as u8,
+            green: (self.green as f32 * scalar).clamp(0.0, 255.0) as u8,
+            blue: (self.blue as f32 * scalar).clamp(0.0, 255.0) as u8,
         }
     }
 }
 
-// Implement display formatting for Color
+// Implementamos el trait Display para permitir la impresión de la estructura Color
 impl fmt::Display for Color {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Color(r: {}, g: {}, b: {})", self.r, self.g, self.b)
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Color: R={}, G={}, B={}", self.red, self.green, self.blue)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let color = Color::new(300, -20, 256);
+        assert_eq!(color.red, 255);
+        assert_eq!(color.green, 0);
+        assert_eq!(color.blue, 255);
+    }
+
+    #[test]
+    fn test_from_hex() {
+        let color = Color::from_hex(0xFF00FF);
+        assert_eq!(color.red, 255);
+        assert_eq!(color.green, 0);
+        assert_eq!(color.blue, 255);
+    }
+
+    #[test]
+    fn test_to_hex() {
+        let color = Color::new(255, 0, 255);
+        assert_eq!(color.to_hex(), 0xFF00FF);
+    }
+
+    #[test]
+    fn test_add() {
+        let color1 = Color::new(100, 150, 200);
+        let color2 = Color::new(155, 105, 60);
+        let result = color1 + color2;
+        assert_eq!(result.red, 255);
+        assert_eq!(result.green, 255);
+        assert_eq!(result.blue, 255);
+    }
+
+    #[test]
+    fn test_mul() {
+        let color = Color::new(100, 150, 200);
+        let result = color * 0.5;
+        assert_eq!(result.red, 50);
+        assert_eq!(result.green, 75);
+        assert_eq!(result.blue, 100);
+    }
+
+    #[test]
+    fn test_display() {
+        let color = Color::new(255, 0, 255);
+        assert_eq!(format!("{}", color), "Color: R=255, G=0, B=255");
     }
 }

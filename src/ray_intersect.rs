@@ -1,8 +1,8 @@
-//Raytracing_Rust_Project/src/ray_intersect.rs
 use nalgebra_glm::Vec3;
-use crate::material::Material;
+use crate::materials::Material;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
+#[allow(dead_code)]
 pub struct Intersect {
     pub point: Vec3,
     pub normal: Vec3,
@@ -14,22 +14,21 @@ pub struct Intersect {
 }
 
 impl Intersect {
-    pub fn new(point: Vec3, normal: Vec3, distance: f32, material: Material, u: f32, v: f32) -> Self {
+    pub fn new(point: Vec3, normal: Vec3, distance: f32, material: Material, u:f32, v:f32) -> Self {
         Intersect {
             point,
             normal,
             distance,
             is_intersecting: true,
             material,
-            u,
-            v,
+            u, v,
         }
     }
 
     pub fn empty() -> Self {
         Intersect {
-            point: Vec3::new(0.0, 0.0, 0.0),
-            normal: Vec3::new(0.0, 0.0, 0.0),
+            point: Vec3::zeros(),
+            normal: Vec3::zeros(),
             distance: 0.0,
             is_intersecting: false,
             material: Material::black(),
@@ -40,5 +39,5 @@ impl Intersect {
 }
 
 pub trait RayIntersect {
-  fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect;
+    fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect;
 }

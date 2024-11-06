@@ -1,7 +1,6 @@
-//Raytracing_Rust_Project/src/light.rs
 use nalgebra_glm::Vec3;
 use crate::color::Color;
-
+#[derive(Clone, Copy)]
 pub struct Light {
     pub position: Vec3,
     pub color: Color,
